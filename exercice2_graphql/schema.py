@@ -1,17 +1,9 @@
-"""
-Schéma GraphQL - Gestion d'événements
-Module ECHE834 - Exercice 2.B (Gestion d'événements)
-"""
 import strawberry
 from typing import Optional, List
 
-# ─────────────────────────────────────────────────────────────────────────
-# TYPES GraphQL
-# Les types définissent la structure des données exposées par l'API
-# ─────────────────────────────────────────────────────────────────────────
+
 @strawberry.type
 class Evenement:
-    """Représente un événement dans notre système."""
     id: int
     nom: str
     lieu: str
@@ -21,7 +13,6 @@ class Evenement:
 
 @strawberry.input
 class EvenementInput:
-    """Données d'entrée pour créer ou modifier un événement."""
     nom: str
     lieu: str
     date: str
@@ -30,13 +21,9 @@ class EvenementInput:
 
 @strawberry.type
 class DeleteResult:
-    """Résultat d'une suppression."""
     success: bool
     message: str
 
-# ─────────────────────────────────────────────────────────────────────────
-# BASE DE DONNÉES EN MÉMOIRE
-# ─────────────────────────────────────────────────────────────────────────
 evenements_db: List[dict] = [
     {"id": 1, "nom": "Conférence Python", "lieu": "Paris", "date": "2024-06-15", "capacite_max": 100, "organisateur": "EPSI"},
     {"id": 2, "nom": "Meetup Data Science", "lieu": "Lyon", "date": "2024-06-20", "capacite_max": 50, "organisateur": "DataLab"},
@@ -45,7 +32,6 @@ evenements_db: List[dict] = [
 _next_id = 4
 
 def dict_to_evenement(d: dict) -> Evenement:
-    """Convertit un dictionnaire en objet Événement."""
     return Evenement(
         id=d["id"],
         nom=d["nom"],
@@ -55,9 +41,6 @@ def dict_to_evenement(d: dict) -> Evenement:
         organisateur=d["organisateur"]
     )
 
-# ─────────────────────────────────────────────────────────────────────────
-# QUERIES — Lecture de données (équivalent GET en REST)
-# ─────────────────────────────────────────────────────────────────────────
 @strawberry.type
 class Query:
     @strawberry.field(description="Retourne tous les événements (filtre optionnel par organisateur)")
@@ -72,9 +55,6 @@ class Query:
         evenement = next((e for e in evenements_db if e["id"] == id), None)
         return dict_to_evenement(evenement) if evenement else None
 
-# ─────────────────────────────────────────────────────────────────────────
-# MUTATIONS — Modification de données (équivalent POST/PUT/DELETE en REST)
-# ─────────────────────────────────────────────────────────────────────────
 @strawberry.type
 class Mutation:
     @strawberry.mutation(description="Crée un nouvel événement")
@@ -151,7 +131,4 @@ class Mutation:
             return DeleteResult(success=True, message=f"Événement {id} supprimé")
         return DeleteResult(success=False, message=f"Événement {id} introuvable")
 
-# ─────────────────────────────────────────────────────────────────────────
-# SCHÉMA final — combine Query et Mutation
-# ─────────────────────────────────────────────────────────────────────────
 schema = strawberry.Schema(query=Query, mutation=Mutation)

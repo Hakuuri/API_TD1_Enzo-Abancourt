@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-"""
-API REST - Gestion d'événements
-Module ECHE834 - Exercice 1.B (Gestion d'événements)
-"""
 from flask import Flask, jsonify, request, abort
 import os
 from dotenv import load_dotenv
@@ -81,7 +77,6 @@ def not_found(e):
 
 @app.route("/evenements", methods=["GET"])
 def get_evenements():
-    """Retourne la liste complète des événements."""
     verifier_token()
 
     organisateur_filtre = request.args.get("organisateur")
@@ -132,7 +127,6 @@ def create_evenement():
 
 @app.route("/evenements/<int:evenement_id>", methods=["PUT"])
 def update_evenement(evenement_id):
-    """Met à jour un événement existant (remplacement complet)."""
     verifier_token()
 
     evenement = next((e for e in evenements_db if e["id"] == evenement_id), None)
@@ -157,7 +151,6 @@ def update_evenement(evenement_id):
 
 @app.route("/evenements/<int:evenement_id>", methods=["DELETE"])
 def delete_evenement(evenement_id):
-    """Supprime un événement de la base de données."""
     global evenements_db
     verifier_token()
 

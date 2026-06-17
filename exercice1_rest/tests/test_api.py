@@ -160,6 +160,5 @@ class TestAuthentification:
         assert r.status_code == 403
 
     def test_delete_sans_token(self, client):
-        """DELETE sans token → 401."""
         r = client.delete("/evenements/1")
         assert r.status_code == 401
