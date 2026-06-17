@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  # API REST Flask - Gestion d'événements
+  api-rest:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.rest
+    container_name: eche834-api-rest
+    ports:
+      - "5000:5000"
+    environment:
+      - API_TOKEN=${API_TOKEN:-token_secret}
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+    volumes:
+      - ./exercice1_rest:/app/exercice1_rest
+    restart: unless-stopped
+    command: python -m flask --app exercice1_rest.app run --host 0.0.0.0 --port 5000
+
+  # API GraphQL FastAPI - Gestion d'événements
+  api-graphql:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.graphql
+    container_name: eche834-api-graphql
+    ports:
+      - "8000:8000"
+    environment:
+      - API_TOKEN=${API_TOKEN:-token_secret}
+    volumes:
+      - ./exercice2_graphql:/app/exercice2_graphql
+    restart: unless-stopped
+    depends_on:
+      - api-rest
+    command: uvicorn exercice2_graphql.app:app --host 0.0.0.0 --port 8000 --reload
