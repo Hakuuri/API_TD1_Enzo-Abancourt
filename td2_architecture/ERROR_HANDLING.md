@@ -6,12 +6,12 @@ Tous les cas d'erreur et de succès sont gérés avec les codes HTTP appropriés
 
 | Cas | Code HTTP | Message d'erreur | Exemple |
 |-----|-----------|-----------------|---------|
-| ✅ Réservation créée avec succès | **201 Created** | N/A | POST /salles/1/reservations |
-| ⚠️ Champ date, heure_debut ou usager manquant | **400 Bad Request** | "Champs manquants" | POST avec données incomplètes |
-| 🔒 Token absent ou invalide | **401/403** | "Unauthorized"/"Forbidden" | Sans Authorization header |
-| ❌ Salle inexistante référencée | **404 Not Found** | "Salle non trouvée" | GET /salles/999 |
-| ⚡ Créneau qui chevauche une réservation existante | **409 Conflict** | "Conflit: La salle X est déjà réservée sur ce créneau" | POST avec horaires conflictuels |
-| ✅ Suppression d'une réservation réussie | **204 No Content** | N/A | DELETE /reservations/1 |
+| Réservation créée avec succès | **201 Created** | N/A | POST /salles/1/reservations |
+| Champ date, heure_debut ou usager manquant | **400 Bad Request** | "Champs manquants" | POST avec données incomplètes |
+| Token absent ou invalide | **401/403** | "Unauthorized"/"Forbidden" | Sans Authorization header |
+| Salle inexistante référencée | **404 Not Found** | "Salle non trouvée" | GET /salles/999 |
+| Créneau qui chevauche une réservation existante | **409 Conflict** | "Conflit: La salle X est déjà réservée sur ce créneau" | POST avec horaires conflictuels |
+| Suppression d'une réservation réussie | **204 No Content** | N/A | DELETE /reservations/1 |
 
 ## Implémentation dans FastAPI
 
@@ -75,7 +75,7 @@ raise HTTPException(
 
 ## Cas de Test Validés
 
-### ✅ Réservation créée avec succès (201)
+### Réservation créée avec succès (201)
 ```bash
 curl -X POST http://localhost:8000/salles/1/reservations \
   -H "Authorization: Bearer token_mediatheque_123" \
@@ -98,7 +98,7 @@ Response: 201 Created
 }
 ```
 
-### ⚠️ Champ manquant (400)
+### Champ manquant (400)
 ```bash
 curl -X POST http://localhost:8000/salles/1/reservations \
   -H "Authorization: Bearer token_mediatheque_123" \
@@ -110,7 +110,7 @@ curl -X POST http://localhost:8000/salles/1/reservations \
 Response: 422 Unprocessable Entity (Pydantic validation)
 ```
 
-### ❌ Salle inexistante (404)
+### Salle inexistante (404)
 ```bash
 curl -X POST http://localhost:8000/salles/999/reservations \
   -H "Authorization: Bearer token_mediatheque_123" \
@@ -121,7 +121,7 @@ Response: 404 Not Found
 {"detail": "Salle non trouvée"}
 ```
 
-### ⚡ Créneau en conflit (409)
+### Créneau en conflit (409)
 ```bash
 curl -X POST http://localhost:8000/salles/1/reservations \
   -H "Authorization: Bearer token_mediatheque_123" \
@@ -137,7 +137,7 @@ Response: 409 Conflict
 {"detail": "Conflit: La salle 1 est déjà réservée sur ce créneau (14:00-15:30)"}
 ```
 
-### 🔒 Token invalide (403)
+### Token invalide (403)
 ```bash
 curl -X GET http://localhost:8000/salles \
   -H "Authorization: Bearer invalid_token"
@@ -146,7 +146,7 @@ Response: 403 Forbidden
 {"detail": "Token invalide"}
 ```
 
-### ✅ Suppression réussie (204)
+### Suppression réussie (204)
 ```bash
 curl -X DELETE http://localhost:8000/reservations/1 \
   -H "Authorization: Bearer token_mediatheque_123"

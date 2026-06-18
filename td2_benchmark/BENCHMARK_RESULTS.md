@@ -8,28 +8,28 @@
 |---|---|---|
 | Nombre de lignes pour valider un contact | ~15-20 lignes (validation manuelle) | ~2 lignes (décorateurs + type hints) |
 | Erreur retournée si email mal formé | 400 Bad Request (manuel) | 422 Unprocessable Entity (Pydantic auto) |
-| Documentation générée automatiquement | ❌ Non (manuel avec Swagger) | ✅ Oui (/docs et /redoc) |
+| Documentation générée automatiquement | Non (manuel avec Swagger) | Oui (/docs et /redoc) |
 | Temps de mise en place ressenti | ~15 min | ~12 min |
 
 ### Points Clés Observés
 
 #### Flask
-- **Validation manuelle** : Chaque champ doit être validé explicitement
-- **Gestion des erreurs** : Utilise `abort()` pour les codes HTTP
-- **Documentation** : Aucune génération automatique, nécessite un effort manuel
-- **Avantages** : Simple, flexible, léger
-- **Inconvénients** : Beaucoup de code répétitif pour la validation
+- Validation manuelle : Chaque champ doit être validé explicitement
+- Gestion des erreurs : Utilise `abort()` pour les codes HTTP
+- Documentation : Aucune génération automatique, nécessite un effort manuel
+- Avantages : Simple, flexible, léger
+- Inconvénients : Beaucoup de code répétitif pour la validation
 
 #### FastAPI
-- **Validation automatique** : Pydantic gère les types et formats
-- **Codes HTTP** : Automatiquement générés (201, 204, 422, etc.)
-- **Documentation interactive** : Swagger UI et ReDoc générés automatiquement à /docs
-- **Avantages** : Code plus concis, validation stricte, excellente DX
-- **Inconvénients** : Moins de contrôle fin sur la validation
+- Validation automatique : Pydantic gère les types et formats
+- Codes HTTP : Automatiquement générés (201, 204, 422, etc.)
+- Documentation interactive : Swagger UI et ReDoc générés automatiquement à /docs
+- Avantages : Code plus concis, validation stricte, excellente DX
+- Inconvénients : Moins de contrôle fin sur la validation
 
 ### Résultat du Test Email Mal Formé
 
-**Flask** : 400 Bad Request (validation manuelle dans `valider_contact()`)
+Flask : 400 Bad Request (validation manuelle dans `valider_contact()`)
 ```json
 {
   "erreur": "Bad Request",
@@ -37,7 +37,7 @@
 }
 ```
 
-**FastAPI** : 422 Unprocessable Entity (validation Pydantic automatique)
+FastAPI : 422 Unprocessable Entity (validation Pydantic automatique)
 ```json
 {
   "detail": [
