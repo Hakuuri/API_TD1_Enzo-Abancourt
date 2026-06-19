@@ -52,3 +52,36 @@ def verifier_token():
         del tokens_actifs[token]
         abort(401, description="Token expire")
     return info["user"]
+
+
+@app.route("/auth/login", methods=["POST"])
+def login():
+    """Authentifie un utilisateur et retourne un nouveau token."""
+    data = request.get_json()
+    username = data.get("username")
+    password = data.get("password")
+    if username not in utilisateurs_db or utilisateurs_db[username] != password:
+        abort(401, description="Identifiants invalides")
+    token = generer_token(username)
+    return jsonify({"token": token, "expire_dans_minutes": DUREE_TOKEN_MINUTES}), 200
+
+
+@app.route("/auth/logout", methods=["POST"])
+def logout():
+    """Revoque le token actuel avant son expiration naturelle."""
+    auth_header = request.headers.get("Authorization", "")
+    token = auth_header.split(" ")[1] if " " in auth_header else None
+    if token and token in tokens_actifs:
+        del tokens_actifs[token]
+    return "", 204
+
+
+@app.route("/profil", methods=["GET"])
+def profil():
+    """Route protegee : retourne le nom de l'utilisateur connecte."""
+    username = verifier_token()
+    return jsonify({"utilisateur": username}), 200
+
+
+if __name__ == "__main__":
+    app.run(debug=True, port=5001)
