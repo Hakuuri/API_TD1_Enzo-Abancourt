@@ -40,3 +40,49 @@ clients_autorises = {
 
 codes_autorisation = {}
 refresh_tokens = {}
+
+
+def creer_access_token(username):
+    """Encode un JWT access_token avec sub et exp (15 minutes)."""
+    payload = {
+        "sub": username,
+        "exp": datetime.utcnow() + timedelta(minutes=DUREE_ACCESS_TOKEN_MINUTES)
+    }
+    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+
+
+def verifier_access_token():
+    """Decode et valide le JWT Bearer de la requete. Retourne le username."""
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        abort(401, description="Token manquant")
+    token = auth_header.split(" ")[1]
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload["sub"]
+    except JWTError:
+        abort(401, description="Token invalide ou expire")
+
+
+@app.route("/oauth/authorize", methods=["POST"])
+def authorize():
+    """Genere un code d'autorisation a usage unique valable 60 secondes."""
+    data = request.get_json()
+    username = data.get("username")
+    password = data.get("password")
+    client_id = data.get("client_id")
+
+    if username not in utilisateurs_db or utilisateurs_db[username] != password:
+        abort(401, description="Identifiants utilisateur invalides")
+
+    if client_id not in clients_autorises:
+        abort(401, description="client_id invalide")
+
+    code = secrets.token_hex(16)
+    codes_autorisation[code] = {
+        "username": username,
+        "client_id": client_id,
+        "expire_le": datetime.utcnow() + timedelta(seconds=DUREE_CODE_AUTORISATION_SECONDES),
+        "utilise": False
+    }
+    return jsonify({"code": code}), 200
