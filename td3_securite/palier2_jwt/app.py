@@ -15,6 +15,17 @@ Structure d'un JWT : header.payload.signature
   - header    : algorithme de signature (HS256) et type (JWT)
   - payload   : claims sub (utilisateur) et exp (expiration timestamp Unix)
   - signature : HMAC-SHA256(header+payload, SECRET_KEY)
+
+Question 4.4 - Comment invalider un JWT avant son expiration ?
+Un JWT etant stateless, le serveur ne le stocke pas et ne peut pas le
+"supprimer". Les strategies de revocation sont :
+  1. Blacklist : maintenir une liste des JWT revoques en cache (Redis).
+     Le serveur verifie a chaque requete si le token est dans la liste.
+     Avantage : revocation immediate. Inconvenient : reintroduit un etat serveur.
+  2. Tokens de courte duree + refresh_token : l'access_token expire vite (15 min),
+     seul le refresh_token (long, stocke en base) peut etre revoque precisement.
+     C'est la solution retenue au palier 3 (voir td3_securite/palier3_oauth2/).
+  3. Rotation de la SECRET_KEY : invalide tous les tokens, mesure d'urgence uniquement.
 """
 from flask import Flask, jsonify, request, abort
 from jose import jwt, JWTError
