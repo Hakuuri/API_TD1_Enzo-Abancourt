@@ -12,3 +12,8 @@ python-dotenv==1.0.1
 requests==2.32.3
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
+
+# Commande de couverture (section 6.4) - a executer depuis chaque palier :
+# cd td3_securite/palier1_token_avance && python -m pytest tests/ --cov=app --cov-report=term-missing
+# cd td3_securite/palier2_jwt          && python -m pytest tests/ --cov=app --cov-report=term-missing
+# cd td3_securite/palier3_oauth2       && python -m pytest tests/ --cov=app --cov-report=term-missing
