@@ -58,8 +58,12 @@ def verifier_token():
 def login():
     """Authentifie un utilisateur et retourne un nouveau token."""
     data = request.get_json()
+    if not data:
+        abort(400, description="Corps JSON requis")
     username = data.get("username")
     password = data.get("password")
+    if not username or not password:
+        abort(400, description="username et password requis")
     if username not in utilisateurs_db or utilisateurs_db[username] != password:
         abort(401, description="Identifiants invalides")
     token = generer_token(username)
@@ -81,6 +85,21 @@ def profil():
     """Route protegee : retourne le nom de l'utilisateur connecte."""
     username = verifier_token()
     return jsonify({"utilisateur": username}), 200
+
+
+@app.errorhandler(400)
+def bad_request(e):
+    return jsonify({"erreur": str(e.description)}), 400
+
+
+@app.errorhandler(401)
+def non_autorise(e):
+    return jsonify({"erreur": str(e.description)}), 401
+
+
+@app.errorhandler(403)
+def interdit(e):
+    return jsonify({"erreur": str(e.description)}), 403
 
 
 if __name__ == "__main__":
