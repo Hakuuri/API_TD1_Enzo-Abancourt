@@ -130,3 +130,39 @@ def token():
         "refresh_token": refresh_token,
         "expires_in": DUREE_ACCESS_TOKEN_MINUTES * 60
     }), 200
+
+
+@app.route("/oauth/refresh", methods=["POST"])
+def refresh():
+    """Renouvelle un access_token a partir d'un refresh_token valide."""
+    data = request.get_json()
+    refresh_token = data.get("refresh_token")
+
+    if refresh_token not in refresh_tokens:
+        abort(401, description="Refresh token invalide")
+
+    info_refresh = refresh_tokens[refresh_token]
+
+    if info_refresh["expire_le"] < datetime.utcnow():
+        del refresh_tokens[refresh_token]
+        abort(401, description="Refresh token expire")
+
+    username = info_refresh["username"]
+    new_access_token = creer_access_token(username)
+
+    return jsonify({
+        "access_token": new_access_token,
+        "token_type": "bearer",
+        "expires_in": DUREE_ACCESS_TOKEN_MINUTES * 60
+    }), 200
+
+
+@app.route("/profil", methods=["GET"])
+def profil():
+    """Route protegee : retourne le nom de l'utilisateur connecte."""
+    username = verifier_access_token()
+    return jsonify({"utilisateur": username}), 200
+
+
+if __name__ == "__main__":
+    app.run(debug=True, port=5003)
