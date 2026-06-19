@@ -86,3 +86,47 @@ def authorize():
         "utilise": False
     }
     return jsonify({"code": code}), 200
+
+
+@app.route("/oauth/token", methods=["POST"])
+def token():
+    """Echange un code d'autorisation contre access_token et refresh_token."""
+    data = request.get_json()
+    code = data.get("code")
+    client_id = data.get("client_id")
+    client_secret = data.get("client_secret")
+
+    if client_id not in clients_autorises or clients_autorises[client_id] != client_secret:
+        abort(401, description="client_id ou client_secret invalide")
+
+    if code not in codes_autorisation:
+        abort(400, description="Code d'autorisation invalide")
+
+    info_code = codes_autorisation[code]
+
+    if info_code["utilise"]:
+        abort(400, description="Code d'autorisation deja utilise")
+
+    if info_code["expire_le"] < datetime.utcnow():
+        del codes_autorisation[code]
+        abort(400, description="Code d'autorisation expire")
+
+    if info_code["client_id"] != client_id:
+        abort(401, description="client_id ne correspond pas au code emis")
+
+    codes_autorisation[code]["utilise"] = True
+    username = info_code["username"]
+    access_token = creer_access_token(username)
+
+    refresh_token = secrets.token_hex(32)
+    refresh_tokens[refresh_token] = {
+        "username": username,
+        "expire_le": datetime.utcnow() + timedelta(days=DUREE_REFRESH_TOKEN_JOURS)
+    }
+
+    return jsonify({
+        "access_token": access_token,
+        "token_type": "bearer",
+        "refresh_token": refresh_token,
+        "expires_in": DUREE_ACCESS_TOKEN_MINUTES * 60
+    }), 200
